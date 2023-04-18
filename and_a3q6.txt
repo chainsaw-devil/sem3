@@ -1,0 +1,121 @@
+2. Write an android application to list the contact name and phone number form the contacts of your phone. 
+
+--->
+AndroidMainfest.xml
+
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.ass32">
+    <uses-permission android:name="android.permission.READ_CONTACTS"></uses-permission>
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Ass32">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>
+
+--->
+activity_main.xml
+
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".MainActivity">
+
+    <Button
+        android:id="@+id/btnGetContacts"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="btngetcontact"
+        android:text="Get Contacts"/>
+
+    <ListView
+        android:id="@+id/contactList"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"/>
+
+
+</LinearLayout>
+--->
+MainActivity.java
+
+package com.example.ass32;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
+import android.Manifest;
+import android.annotation.SuppressLint;
+import android.content.ContentResolver;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.Bundle;
+import android.provider.ContactsContract;
+import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+import android.widget.Toast;
+
+import java.util.ArrayList;
+
+public class MainActivity extends AppCompatActivity {
+    ListView contactList;
+    String contactName, contactNumber;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        contactList = findViewById(R.id.contactList);
+    }
+    @SuppressLint("Range")
+    public void btngetcontact(View view){
+        if (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.READ_CONTACTS}, 0);
+        }
+
+        ContentResolver cr = getContentResolver();
+
+        Uri uri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
+
+        Cursor cursor = cr.query(uri, null, null, null, null);
+
+        if (cursor.getCount() > 0) {
+
+            Toast.makeText(MainActivity.this, "Total Contacts : " + Integer.toString(cursor.getCount()), Toast.LENGTH_SHORT).show();
+
+            ArrayList<String> arrayList = new ArrayList<>();
+
+            while (cursor.moveToNext()) {
+                contactName = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
+                contactNumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                arrayList.add("\nContact Name : " + contactName + "\n\nContact Number : " + contactNumber + "\n");
+            }
+
+            contactList.setAdapter(new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_list_item_1, arrayList));
+
+        } else {
+            Toast.makeText(MainActivity.this, "Total Contacts : " + Integer.toString(cursor.getCount()), Toast.LENGTH_SHORT).show();
+        }
+    }
+}
