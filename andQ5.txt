@@ -1,0 +1,142 @@
+Q5
+ Write an android application to display the telephone states/properties using the Telephony Manager of your device. 
+
+
+
+
+
+
+
+
+
+
+//Andriodmainfest.xml
+
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="ExtraText" android:version-code="1" android:versionName="1.0">
+    <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="17"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"></uses-permission>
+    <uses-permission android:name="READ_PRIVILEGED_PHONE_STATE"
+        tools:ignore="ProtectedPermissions"/>
+
+    <uses-permission android:name="android.permission.READ_PRIVILEGED_PHONE_STATE" />
+
+    <application
+android:allowBackup="true"
+android:dataExtractionRules="@xml/data_extraction_rules"
+android:fullBackupContent="@xml/backup_rules"
+android:icon="@mipmap/ic_launcher"
+android:label="@string/app_name"
+android:supportsRtl="true"
+android:theme="@style/Theme.Telephonemanger"
+tools:targetApi="31">
+<activity
+    android:name=".MainActivity"
+    android:exported="true">
+    <intent-filter>
+        <action android:name="android.intent.action.MAIN" />
+
+        <category android:name="android.intent.category.LAUNCHER" />
+    </intent-filter>
+</activity>
+</application>
+</manifest>
+
+//activity.xml
+
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/txtstr"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="TextView" />
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
+
+
+//-----------------Mainactivity.java-------------------//
+
+
+package com.example.telephonemanger;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+
+import android.content.Context;
+import android.content.pm.PackageManager;
+import android.os.Bundle;
+import android.telephony.TelephonyManager;
+import android.widget.TextView;
+
+public class MainActivity extends AppCompatActivity {
+         TextView t1;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        t1 = (TextView) findViewById(R.id.txtstr);
+        TelephonyManager tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+        String imno = tm.getDeviceId();
+        String subsciberid = tm.getSubscriberId();
+        String simserialno = tm.getSimSerialNumber();
+        String networkcountryiso = tm.getNetworkCountryIso();
+        String simcountryiso = tm.getSimCountryIso();
+        if(ActivityCompat.checkSelfPermission(this,android.Manifest.permission.READ_PHONE_STATE)!= PackageManager.PERMISSION_GRANTED){
+            return;
+        }
+        String softwarever = tm.getDeviceSoftwareVersion();
+        String voicemailno = tm.getVoiceMailNumber();
+
+        String strphonetype="";
+        int phonetype  = tm.getPhoneType();
+        switch (phonetype)
+        {
+            case(TelephonyManager.PHONE_TYPE_CDMA):
+                strphonetype="GSM";
+                break;
+
+            case (TelephonyManager.PHONE_TYPE_GSM):
+                strphonetype="GSM";
+                break;
+
+            case(TelephonyManager.PHONE_TYPE_NONE):
+                strphonetype="NONE";
+                break;
+        }
+        boolean isRoaming=tm.isNetworkRoaming();
+        String info="phone Details:\n";
+        info+="\n IMEI Number:"+imno;
+        info+="\n Subscriber ID:"+subsciberid;
+        info+="\n Sim Serial Number:"+simserialno;
+        info+="\n Network country Iso:"+networkcountryiso;
+        info+="\n Sim Country Iso:"+simcountryiso;
+        info+="\n Software Version:"+softwarever;
+        info+="\n Voice Mail Number:"+voicemailno;
+        info+="\n Phone Network Type:"+strphonetype;
+        info+="\n In Roaming:"+isRoaming;
+
+        t1.setText(info);
+
+    }
+}
+
+
+
